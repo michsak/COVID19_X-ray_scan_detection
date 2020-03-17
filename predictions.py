@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import datetime
+import plotly.express as px
 
 
 def clean_data(a):
@@ -26,6 +27,15 @@ def graph(x, z, day, place):
         plt.text(x=i-0.05, y=infected_number[i]+0.3, s=infected_number[i], size=12, color='blue')
     plt.plot(day, infected_number, color='red', marker='o')
     plt.show()
+
+
+def world_map(number_of_deaths, day):
+    number_of_deaths = number_of_deaths.groupby(['Country/Region']).max()
+    number_of_deaths = number_of_deaths.reset_index()
+    number_of_deaths['size'] = number_of_deaths[day].pow(0.3)
+    fig = px.scatter_geo(number_of_deaths, locations='Country/Region', locationmode='country names', color=day, size='size', hover_name='Country/Region',
+                     range_color=[0, max(number_of_deaths[day])+5], projection='natural earth', title='COVID deaths all over the world')
+    fig.show()
 
 
 if __name__ == "__main__":
@@ -56,6 +66,8 @@ if __name__ == "__main__":
     #print(max_cases(deaths_dirty, yesterday))
 
     china_deaths = deaths_dirty.loc[deaths_dirty['Country/Region'] == 'China']
-    print(max_cases(china_deaths, yesterday))
+    #print(max_cases(china_deaths, yesterday))
+
+    world_map(deaths_dirty, yesterday)
 
 
