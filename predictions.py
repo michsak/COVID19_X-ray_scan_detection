@@ -29,12 +29,12 @@ def graph(x, z, day, place):
     plt.show()
 
 
-def world_map(number_of_deaths, day):
-    number_of_deaths = number_of_deaths.groupby(['Country/Region']).max()
-    number_of_deaths = number_of_deaths.reset_index()
-    number_of_deaths['size'] = number_of_deaths[day].pow(0.3)
-    fig = px.scatter_geo(number_of_deaths, locations='Country/Region', locationmode='country names', color=day, size='size', hover_name='Country/Region',
-                     range_color=[0, max(number_of_deaths[day])+5], projection='natural earth', title='COVID deaths all over the world')
+def world_map(number, day):
+    number = number.groupby(['Country/Region']).max()
+    number = number.reset_index()
+    number['size'] = number[day]
+    fig = px.choropleth(number, locations='Country/Region', locationmode='country names', color=day, hover_name='Country/Region',
+                     range_color=[0, 1000], projection='natural earth', title='COVID deaths all over the world')
     fig.show()
 
 
@@ -62,12 +62,10 @@ if __name__ == "__main__":
 
     date = datetime.datetime.now().date()
     yesterday = date - datetime.timedelta(how_many_days_ago)
-    yesterday = yesterday.strftime('%m-%d-%y').replace('-', '/').lstrip("0")
+    yesterday = yesterday.strftime('%m/%d/%y').lstrip("0")
     #print(max_cases(deaths_dirty, yesterday))
 
     china_deaths = deaths_dirty.loc[deaths_dirty['Country/Region'] == 'China']
     #print(max_cases(china_deaths, yesterday))
 
     world_map(deaths_dirty, yesterday)
-
-
