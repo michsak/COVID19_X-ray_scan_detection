@@ -1,12 +1,17 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import datetime
 
 
 def clean_data(a):
     a = a.melt(id_vars=['Province/State', 'Country/Region', 'Lat', 'Long'], value_name='Cases', var_name='Date')
     a = a.set_index(['Country/Region', 'Province/State', 'Date'])
     return a
+
+
+def max_cases(df, day):
+    return df[['Province/State', 'Country/Region', day]].sort_values(by=day, ascending=True).tail(10)
 
 
 def graph(x, z, day, place):
@@ -27,6 +32,7 @@ if __name__ == "__main__":
     pd.set_option("display.max_columns", 15)
     number_of_days = 20
     where = 'Poland'
+    how_many_days_ago = 2
 
     confirmed_cases_dirty = pd.read_csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv')
     deaths_dirty = pd.read_csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv')
@@ -40,4 +46,16 @@ if __name__ == "__main__":
     tunisia = confirmed_cases.loc['Tunisia', :]
     spain = confirmed_cases.loc['Spain', :]
     china = confirmed_cases.loc['China', 'Hubei']
-    graph(poland, number_of_days, date, where)
+    italy = confirmed_cases.loc['Italy', :]
+    #graph(poland, number_of_days, date, where)
+
+
+    date = datetime.datetime.now().date()
+    yesterday = date - datetime.timedelta(how_many_days_ago)
+    yesterday = yesterday.strftime('%m-%d-%y').replace('-', '/').lstrip("0")
+    #print(max_cases(deaths_dirty, yesterday))
+
+    china_deaths = deaths_dirty.loc[deaths_dirty['Country/Region'] == 'China']
+    print(max_cases(china_deaths, yesterday))
+
+
