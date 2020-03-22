@@ -22,9 +22,10 @@ def graph(x, z, day, place):
     plt.figure(figsize=(18, 8))
     plt.title('Confirmed COVID-19 cases in ' + place)
     plt.xlabel('Date')
+    plt.xlim(0, 20)
     plt.ylabel('Cases ')
     for i in range(z):
-        plt.text(x=i-0.05, y=infected_number[i]+0.3, s=infected_number[i], size=12, color='blue')
+        plt.text(x=i-0.05, y=infected_number[i]+5, s=infected_number[i], size=12, color='blue')
     plt.plot(day, infected_number, color='red', marker='o')
     plt.show()
 
