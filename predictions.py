@@ -25,7 +25,7 @@ def graph(x, z, day, place):
     plt.xlim(0, 20)
     plt.ylabel('Cases ')
     for i in range(z):
-        plt.text(x=i-0.05, y=infected_number[i]+5, s=infected_number[i], size=12, color='blue')
+        plt.text(x=i-0.1, y=infected_number[i]+5, s=int(infected_number[i]), size=12, color='blue')
     plt.plot(day, infected_number, color='red', marker='o')
     plt.show()
 
@@ -43,30 +43,23 @@ if __name__ == "__main__":
     pd.set_option("display.max_columns", 15)
     number_of_days = 20
     where = 'Poland'
-    how_many_days_ago = 2
+    how_many_days_ago = 1
 
-    confirmed_cases_dirty = pd.read_csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv')
-    deaths_dirty = pd.read_csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv')
-    recoveries_dirty = pd.read_csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv')
+    confirmed_cases_dirty = pd.read_csv('https://data.humdata.org/hxlproxy/api/data-preview.csv?url=https%3A%2F%2Fraw.githubusercontent.com%2FCSSEGISandData%2FCOVID-19%2Fmaster%2Fcsse_covid_19_data%2Fcsse_covid_19_time_series%2Ftime_series_covid19_confirmed_global.csv&filename=time_series_covid19_confirmed_global.csv')
+    deaths_dirty = pd.read_csv('https://data.humdata.org/hxlproxy/api/data-preview.csv?url=https%3A%2F%2Fraw.githubusercontent.com%2FCSSEGISandData%2FCOVID-19%2Fmaster%2Fcsse_covid_19_data%2Fcsse_covid_19_time_series%2Ftime_series_covid19_deaths_global.csv&filename=time_series_covid19_deaths_global.csv')
     confirmed_cases = clean_data(confirmed_cases_dirty)
     deaths = clean_data(deaths_dirty)
-    recoveries = clean_data(recoveries_dirty)
     date = confirmed_cases_dirty.columns[-number_of_days:]
 
-    poland = confirmed_cases.loc['Poland', :]
-    tunisia = confirmed_cases.loc['Tunisia', :]
-    spain = confirmed_cases.loc['Spain', :]
-    china = confirmed_cases.loc['China', 'Hubei']
-    italy = confirmed_cases.loc['Italy', :]
-    #graph(poland, number_of_days, date, where)
-
-
-    date = datetime.datetime.now().date()
-    yesterday = date - datetime.timedelta(how_many_days_ago)
-    yesterday = yesterday.strftime('%m/%d/%y').lstrip("0")
-    #print(max_cases(deaths_dirty, yesterday))
-
+    poland_cases = confirmed_cases.loc['Poland', :]
+    spain_cases = confirmed_cases.loc['Spain', :]
+    china_cases = confirmed_cases.loc['China', 'Hubei']
+    italy_cases = confirmed_cases.loc['Italy', :]
     china_deaths = deaths_dirty.loc[deaths_dirty['Country/Region'] == 'China']
-    #print(max_cases(china_deaths, yesterday))
 
-    world_map(deaths_dirty, yesterday)
+    now = datetime.datetime.now().date()
+    exact_day = now - datetime.timedelta(how_many_days_ago)
+    exact_day = exact_day.strftime('%m/%d/%y').lstrip("0")
+
+    graph(poland_cases, number_of_days, date, where)
+    world_map(deaths_dirty, exact_day)
