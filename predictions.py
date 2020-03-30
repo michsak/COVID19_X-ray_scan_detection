@@ -35,7 +35,8 @@ def world_map(number, day):
     number = number.reset_index()
     number['size'] = number[day]
     fig = px.choropleth(number, locations='Country/Region', locationmode='country names', color=day, hover_name='Country/Region',
-                     range_color=[0, 1000], projection='natural earth', title='COVID deaths all over the world')
+                     range_color=[0, 1500], projection='natural earth', title='COVID deaths all over the world',
+                     color_continuous_scale=px.colors.sequential.Viridis)
     fig.show()
 
 
@@ -61,5 +62,5 @@ if __name__ == "__main__":
     exact_day = now - datetime.timedelta(how_many_days_ago)
     exact_day = exact_day.strftime('%m/%d/%y').lstrip("0")
 
-    graph(poland_cases, number_of_days, date, where)
+    #graph(poland_cases, number_of_days, date, where)
     world_map(deaths_dirty, exact_day)
