@@ -22,8 +22,10 @@ def graph(x, z, day, place):
     plt.figure(figsize=(18, 8))
     plt.title('Confirmed COVID-19 cases in ' + place)
     plt.xlabel('Date')
-    plt.xlim(0, 20)
+    plt.xlim(0, z)
     plt.ylabel('Cases ')
+    plt.xticks(np.arange(1, z, 2.0))
+    plt.grid(ls='dotted')
     for i in range(z):
         plt.text(x=i-0.1, y=infected_number[i]+5, s=int(infected_number[i]), size=12, color='blue')
     plt.plot(day, infected_number, color='red', marker='o')
@@ -42,7 +44,7 @@ def world_map(number, day):
 
 if __name__ == "__main__":
     pd.set_option("display.max_columns", 15)
-    number_of_days = 20
+    number_of_days = 40
     where = 'Poland'
     how_many_days_ago = 1
 
@@ -62,5 +64,5 @@ if __name__ == "__main__":
     exact_day = now - datetime.timedelta(how_many_days_ago)
     exact_day = exact_day.strftime('%m/%d/%y').lstrip("0")
 
-    #graph(poland_cases, number_of_days, date, where)
+    graph(poland_cases, number_of_days, date, where)
     world_map(deaths_dirty, exact_day)
