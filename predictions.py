@@ -62,7 +62,7 @@ if __name__ == "__main__":
 
     now = datetime.datetime.now().date()
     exact_day = now - datetime.timedelta(how_many_days_ago)
-    exact_day = exact_day.strftime('%m/%d/%y').lstrip("0")
+    exact_day = exact_day.strftime('%m/%#d/%y').lstrip("0")
 
     graph(poland_cases, number_of_days, date, where)
     world_map(deaths_dirty, exact_day)
