@@ -23,12 +23,28 @@ def graph(x, z, day, place):
     plt.title('Confirmed COVID-19 cases in ' + place)
     plt.xlabel('Date')
     plt.xlim(0, z)
-    plt.ylabel('Cases ')
+    plt.ylabel('Cases')
     plt.xticks(np.arange(1, z, 2.0))
     plt.grid(ls='dotted')
     for i in range(z):
         plt.text(x=i-0.1, y=infected_number[i]+5, s=int(infected_number[i]), size=12, color='blue')
     plt.plot(day, infected_number, color='red', marker='o')
+    plt.show()
+    plt.close()
+    plt.clf()
+
+
+def merged_graph(data, z,  place, place_2):
+    maximum_cases = max(max(merged['Cases_x']), max(merged['Cases_y']))
+    data = data.tail(z)
+    data = data.rename({'Cases_x': place, 'Cases_y': place_2}, axis=1)
+    plt.close()
+    data.plot(y=[place, place_2], figsize=(18, 8), marker='o', title=('Confirmed COVID-19 cases in ' + place + ' and ' + place_2))
+    plt.xlabel('Date')
+    plt.xlim(0, z)
+    plt.ylabel('Cases')
+    plt.yticks(np.arange(0, maximum_cases, 500))
+    plt.grid(ls='dotted')
     plt.show()
 
 
@@ -44,8 +60,9 @@ def world_map(number, day):
 
 if __name__ == "__main__":
     pd.set_option("display.max_columns", 15)
-    number_of_days = 40
+    number_of_days = 30
     where = 'Poland'
+    where_2 = 'Belarus'
     how_many_days_ago = 1
 
     confirmed_cases_dirty = pd.read_csv('https://data.humdata.org/hxlproxy/api/data-preview.csv?url=https%3A%2F%2Fraw.githubusercontent.com%2FCSSEGISandData%2FCOVID-19%2Fmaster%2Fcsse_covid_19_data%2Fcsse_covid_19_time_series%2Ftime_series_covid19_confirmed_global.csv&filename=time_series_covid19_confirmed_global.csv')
@@ -58,11 +75,14 @@ if __name__ == "__main__":
     spain_cases = confirmed_cases.loc['Spain', :]
     china_cases = confirmed_cases.loc['China', 'Hubei']
     italy_cases = confirmed_cases.loc['Italy', :]
+    belarus_cases = confirmed_cases.loc['Belarus', :]
     china_deaths = deaths_dirty.loc[deaths_dirty['Country/Region'] == 'China']
+    merged = poland_cases.merge(belarus_cases, left_on="Date", right_on="Date")
 
     now = datetime.datetime.now().date()
     exact_day = now - datetime.timedelta(how_many_days_ago)
     exact_day = exact_day.strftime('%m/%#d/%y').lstrip("0")
 
     graph(poland_cases, number_of_days, date, where)
+    merged_graph(merged, number_of_days, where, where_2)
     world_map(deaths_dirty, exact_day)
