@@ -2,9 +2,16 @@ import os
 import random
 import cv2
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.image import imread
 from sklearn.model_selection import train_test_split
+from keras.models import Sequential
+from keras.layers import Conv2D, Flatten, MaxPooling2D, Dense, Dropout
+from keras.callbacks import EarlyStopping, TensorBoard
+from keras.utils import to_categorical
+from sklearn.metrics import classification_report
+from keras.layers.merge import concatenate
 
 
 
@@ -16,7 +23,6 @@ def visualisation():
     vir_pneumonia_location = path + '\\Viral Pneumonia\\' + os.listdir(path + '\\Viral Pneumonia')[img_number]
     plt.imshow(imread(covid_location))
     image_shape = imread(covid_location).shape
-    print(image_shape)
     plt.show()
 
 
@@ -71,9 +77,41 @@ def data_preprocessing():
     return {'X': X, 'y': y}
 
 
+def network():
+    model = Sequential()
+    model.add(Conv2D(filters=32, kernel_size=(3, 3), input_shape=(512, 512, 1), activation='relu', padding='same', ))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Conv2D(filters=64, kernel_size=(3, 3), input_shape=(512, 512, 1), activation='relu', padding='same'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Conv2D(filters=128, kernel_size=(3, 3), input_shape=(512, 512, 1), activation='relu', padding='same'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Flatten())
+    model.add(Dense(512, activation='relu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(256, activation='relu'))
+    model.add(Dense(3, activation='softmax'))
+    model.compile(optimizer='adam', metrics=['accuracy'], loss='categorical_crossentropy')
+    model.summary()
+    return model
+
+
+def training(training_model, X_train, X_val, y_train, y_val):
+    y_train_cat = to_categorical(y_train, num_classes=3)
+    y_val_cat = to_categorical(y_val, num_classes=3)
+    es = EarlyStopping(patience=3, monitor='val_loss')
+    training_model.fit(X_train, y_train_cat, epochs=15, batch_size=8, validation_data=(X_val, y_val_cat), callbacks=[es])
+    metrics = pd.DataFrame(training_model.history.history)
+    metrics.plot()
+    plt.show()
+    predictions = training_model.predict_classes(X_val)
+    clas_report = classification_report(y_val, predictions)
+    print(clas_report)
+
+
 if __name__ == "__main__":
     X = data_preprocessing()['X']
     y = data_preprocessing()['y']
     X_train, X_val, y_train, y_val = train_test_split(X, y, random_state=333, test_size=0.2)
     X_train = X_train/255
     X_val = X_val/255
+    training(network(), X_train, X_val, y_train, y_val)
