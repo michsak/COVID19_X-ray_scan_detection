@@ -10,6 +10,7 @@ from keras.models import Sequential
 from keras.layers import Conv2D, Flatten, MaxPooling2D, Dense, BatchNormalization, Activation
 from keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard
 from sklearn.metrics import classification_report
+from datetime import datetime
 
 
 def visualisation():
@@ -87,6 +88,7 @@ def network():
     model.add(Dense(256, activation='relu'))
     model.add(Dense(1, activation='sigmoid'))
     model.compile(optimizer='adam', metrics=['accuracy'], loss='binary_crossentropy')
+    model.save('best_model')
     model.summary()
     return model
 
@@ -95,10 +97,16 @@ def training(training_model, X_train, X_val, y_train, y_val):
     es = EarlyStopping(patience=3, monitor='val_loss')
     filepath = "weights.best.hdf5"
     checkpoint = ModelCheckpoint(filepath, monitor='val_accuracy', verbose=1, save_best_only=True, mode='max')
+    timestamp = datetime.now().strftime('%Y-%m-%d--%H%M')
+    log_directory = 'logs\\fit' + '\\' + timestamp
+    board = TensorBoard(log_dir=log_directory, histogram_freq=1, write_graph=True, update_freq='epoch', profile_batch=2, embeddings_freq=1)
 
-    training_model.fit(X_train, y_train, epochs=10, batch_size=8, validation_data=(X_val, y_val), callbacks=[es, checkpoint])
+    training_model.fit(X_train, y_train, epochs=10, batch_size=8, validation_data=(X_val, y_val), callbacks=[es, board, checkpoint])
     metrics = pd.DataFrame(training_model.history.history)
-    metrics.plot()
+    metrics[['accuracy', 'val_accuracy']].plot()
+    plt.show()
+    plt.clf()
+    metrics[['loss', 'val_loss']].plot()
     plt.show()
     predictions = training_model.predict_classes(X_val)
     clas_report = classification_report(y_val, predictions)
