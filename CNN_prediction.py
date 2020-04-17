@@ -7,30 +7,25 @@ import matplotlib.pyplot as plt
 from matplotlib.image import imread
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential
-from keras.layers import Conv2D, Flatten, MaxPooling2D, Dense, Dropout
-from keras.callbacks import EarlyStopping, TensorBoard
-from keras.utils import to_categorical
+from keras.layers import Conv2D, Flatten, MaxPooling2D, Dense, BatchNormalization, Activation
+from keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard
 from sklearn.metrics import classification_report
-from keras.layers.merge import concatenate
-
 
 
 def visualisation():
     img_number = 0
     path = "C:\\Users\\micha\\OneDrive\\Documents\\Machine learning\\COVID19_prediction\\COVID-19_Radiography_Database"
     covid_location = path + '\\COVID-19\\' + os.listdir(path + "\\COVID-19")[img_number]
-    normal_location = path +'\\NORMAL\\' + os.listdir(path + "\\NORMAL")[img_number]
+    normal_location = path + '\\NORMAL\\' + os.listdir(path + "\\NORMAL")[img_number]
     vir_pneumonia_location = path + '\\Viral Pneumonia\\' + os.listdir(path + '\\Viral Pneumonia')[img_number]
     plt.imshow(imread(covid_location))
-    image_shape = imread(covid_location).shape
     plt.show()
 
 
 def data_preprocessing():
-    path = "C:\\Users\\micha\\OneDrive\\Documents\\Machine learning\\COVID19_prediction\\COVID-19_Radiography_Database"
-    how_many = 300
+    how_many = 350
     size = 512
-    categories = ['COVID-19', 'NORMAL', 'Viral Pneumonia']
+    categories = ['COVID-19', 'NORMAL']
     training_data = []
     X = []
     y = []
@@ -50,16 +45,6 @@ def data_preprocessing():
                     training_data.append([sc_array, class_number])
                 except Exception as e:
                     pass
-            if category == 'Viral Pneumonia':
-                try:
-                    rd = random.choice(os.listdir(path))
-                    while rd in training_data:
-                        rd = random.choice(os.listdir(path))
-                    img_array = cv2.imread(os.path.join(path, rd), cv2.IMREAD_GRAYSCALE)
-                    sc_array = cv2.resize(img_array, (size, size))
-                    training_data.append([sc_array, class_number])
-                except Exception as e:
-                    pass
         if category == 'COVID-19':
             path_2 = os.path.join(datadir, 'COVID-19')
             for image in os.listdir(path_2):
@@ -69,6 +54,8 @@ def data_preprocessing():
                     training_data.append([sc_array, class_number])
                 except Exception as e:
                     pass
+        else:
+            pass
     random.shuffle(training_data)
     for features, label in training_data:
         X.append(features)
@@ -79,27 +66,37 @@ def data_preprocessing():
 
 def network():
     model = Sequential()
-    model.add(Conv2D(filters=32, kernel_size=(3, 3), input_shape=(512, 512, 1), activation='relu', padding='same', ))
+    model.add(Conv2D(filters=32, kernel_size=(4, 4), input_shape=(512, 512, 1), padding='same'))
+    model.add(BatchNormalization())
+    model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Conv2D(filters=64, kernel_size=(3, 3), input_shape=(512, 512, 1), activation='relu', padding='same'))
+    model.add(Conv2D(filters=32, kernel_size=(4, 4), input_shape=(512, 512, 1), padding='same'))
+    model.add(BatchNormalization())
+    model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Conv2D(filters=128, kernel_size=(3, 3), input_shape=(512, 512, 1), activation='relu', padding='same'))
+    model.add(Conv2D(filters=64, kernel_size=(4, 4), input_shape=(512, 512, 1), padding='same'))
+    model.add(BatchNormalization())
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Conv2D(filters=64, kernel_size=(4, 4), input_shape=(512, 512, 1), padding='same'))
+    model.add(BatchNormalization())
+    model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Flatten())
     model.add(Dense(512, activation='relu'))
-    model.add(Dropout(0.5))
     model.add(Dense(256, activation='relu'))
-    model.add(Dense(3, activation='softmax'))
-    model.compile(optimizer='adam', metrics=['accuracy'], loss='categorical_crossentropy')
+    model.add(Dense(1, activation='sigmoid'))
+    model.compile(optimizer='adam', metrics=['accuracy'], loss='binary_crossentropy')
     model.summary()
     return model
 
 
 def training(training_model, X_train, X_val, y_train, y_val):
-    y_train_cat = to_categorical(y_train, num_classes=3)
-    y_val_cat = to_categorical(y_val, num_classes=3)
     es = EarlyStopping(patience=3, monitor='val_loss')
-    training_model.fit(X_train, y_train_cat, epochs=15, batch_size=8, validation_data=(X_val, y_val_cat), callbacks=[es])
+    filepath = "weights.best.hdf5"
+    checkpoint = ModelCheckpoint(filepath, monitor='val_accuracy', verbose=1, save_best_only=True, mode='max')
+
+    training_model.fit(X_train, y_train, epochs=10, batch_size=8, validation_data=(X_val, y_val), callbacks=[es, checkpoint])
     metrics = pd.DataFrame(training_model.history.history)
     metrics.plot()
     plt.show()
