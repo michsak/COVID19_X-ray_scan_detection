@@ -43,7 +43,7 @@ def merged_graph(data, z,  place, place_2):
     plt.xlabel('Date')
     plt.xlim(0, z)
     plt.ylabel('Cases')
-    plt.yticks(np.arange(0, maximum_cases, 500))
+    plt.yticks(np.arange(0, maximum_cases, 10000))
     plt.grid(ls='dotted')
     plt.show()
 
@@ -60,9 +60,9 @@ def world_map(number, day):
 
 if __name__ == "__main__":
     pd.set_option("display.max_columns", 15)
-    number_of_days = 30
+    number_of_days = 35
     where = 'Poland'
-    where_2 = 'Belarus'
+    where_2 = 'Germany'
     how_many_days_ago = 1
 
     confirmed_cases_dirty = pd.read_csv('https://data.humdata.org/hxlproxy/api/data-preview.csv?url=https%3A%2F%2Fraw.githubusercontent.com%2FCSSEGISandData%2FCOVID-19%2Fmaster%2Fcsse_covid_19_data%2Fcsse_covid_19_time_series%2Ftime_series_covid19_confirmed_global.csv&filename=time_series_covid19_confirmed_global.csv')
@@ -76,8 +76,9 @@ if __name__ == "__main__":
     china_cases = confirmed_cases.loc['China', 'Hubei']
     italy_cases = confirmed_cases.loc['Italy', :]
     belarus_cases = confirmed_cases.loc['Belarus', :]
+    germany_cases = confirmed_cases.loc['Germany', :]
     china_deaths = deaths_dirty.loc[deaths_dirty['Country/Region'] == 'China']
-    merged = poland_cases.merge(belarus_cases, left_on="Date", right_on="Date")
+    merged = poland_cases.merge(germany_cases, left_on="Date", right_on="Date")
 
     now = datetime.datetime.now().date()
     exact_day = now - datetime.timedelta(how_many_days_ago)
