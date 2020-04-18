@@ -9,7 +9,6 @@ from sklearn.model_selection import train_test_split
 from keras.models import Sequential
 from keras.layers import Conv2D, Flatten, MaxPooling2D, Dense, BatchNormalization, Activation
 from keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard
-from sklearn.metrics import classification_report
 from keras.preprocessing.image import ImageDataGenerator
 from datetime import datetime
 
@@ -104,8 +103,8 @@ def network():
 
 
 def training(training_model, X_train, X_val, y_train, y_val):
-    batch_size = 8
-    epochs = 12
+    batch_size = 16
+    epochs = 15
     image_shape = (512, 512, 1)
 
     es = EarlyStopping(patience=5, monitor='val_loss')
@@ -115,7 +114,7 @@ def training(training_model, X_train, X_val, y_train, y_val):
     log_directory = 'logs\\fit\\' + timestamp
     board = TensorBoard(log_dir=log_directory, histogram_freq=1, write_graph=True, update_freq='epoch', profile_batch=2, embeddings_freq=1)
 
-    image_gen_train = ImageDataGenerator(rescale=1/255, rotation_range=0.05, width_shift_range=0.12, height_shift_range=0.12,
+    image_gen_train = ImageDataGenerator(rescale=1/255, rotation_range=0.05, width_shift_range=0.1, height_shift_range=0.1,
                                          zoom_range=0.1, horizontal_flip=True, vertical_flip=False, fill_mode='nearest')
     image_gen_val = ImageDataGenerator(rescale=1/255)
     train_set = image_gen_train.flow(X_train, y_train, batch_size=batch_size, shuffle=True)
@@ -134,5 +133,5 @@ def training(training_model, X_train, X_val, y_train, y_val):
 if __name__ == "__main__":
     X = data_preprocessing()['X']
     y = data_preprocessing()['y']
-    X_train, X_val, y_train, y_val = train_test_split(X, y, random_state=333, test_size=0.2)
+    X_train, X_val, y_train, y_val = train_test_split(X, y, random_state=333, test_size=0.25)
     training(network(), X_train, X_val, y_train, y_val)
