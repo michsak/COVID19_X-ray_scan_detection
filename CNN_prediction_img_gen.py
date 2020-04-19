@@ -104,7 +104,7 @@ def network():
 
 def training(training_model, X_train, X_val, y_train, y_val):
     batch_size = 16
-    epochs = 15
+    epochs = 9
     image_shape = (512, 512, 1)
 
     es = EarlyStopping(patience=5, monitor='val_loss')
