@@ -17,8 +17,8 @@ It was accomplished by contructing convolutional neural network with Conv and De
 Unfortunately due to insufficient number of X-rays made on infected people accuracy (and loss) looks like below.
 ![](https://raw.githubusercontent.com/michsak/COVID19_X-ray_scan_detection/master/results/merged.png?token=AN7LSJYOFHNIYHOHPS35IJ26URP6S)
 
-Second attempt was made on the same network, but additionaly I used ImageDataGenerator to incerase number of images (especially COVID-19 X-rays). However even this actions improved hardly anything.
-
+Second attempt was made on the same network, but additionaly I used ImageDataGenerator to incerase number of images (especially COVID-19 X-rays). However even this actions improved hardly anything (actually only stability and repeatability of final results).
+![](https://raw.githubusercontent.com/michsak/COVID19_X-ray_scan_detection/master/results/gen_merged.png?token=AN7LSJ3BYL6OGW3OOFSK6SS6UTPDY)
 
 As it is shown above the best way to improve accuracy is to get a lot more data. Network doesn't work well on less than 300 basic photos on each category. </br>
 (Project probably to be continued when more data is available).
