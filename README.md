@@ -31,6 +31,7 @@ Python 3.7; libraries:
 * matplotlib
 * keras
 * sklearn
+* h5py
 * cv2
 * os
 * random
