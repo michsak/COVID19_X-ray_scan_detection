@@ -24,7 +24,7 @@ def visualisation():
 
 
 def data_preprocessing():
-    how_many = 350
+    how_many = 700
     size = 512
     categories = ['COVID-19', 'NORMAL']
     training_data = []
@@ -94,7 +94,7 @@ def network():
 
 
 def training(training_model, X_train, X_val, y_train, y_val):
-    es = EarlyStopping(patience=3, monitor='val_loss')
+    es = EarlyStopping(patience=4, monitor='val_loss')
     filepath = "weights.best.hdf5"
     checkpoint = ModelCheckpoint(filepath, monitor='val_accuracy', verbose=1, save_best_only=True, mode='max')
     timestamp = datetime.now().strftime('%Y-%m-%d--%H%M')
