@@ -6,6 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.image import imread
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
 from keras.models import Sequential
 from keras.layers import Conv2D, Flatten, MaxPooling2D, Dense, BatchNormalization, Activation
 from keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard
@@ -15,7 +16,7 @@ from datetime import datetime
 
 def visualisation():
     img_number = 0
-    path = "C:\\Users\\micha\\OneDrive\\Documents\\Machine learning\\COVID19_prediction\\COVID-19_Radiography_Database"
+    path = "C:\\Users\\micha\\OneDrive\\Documents\\Machine learning\\COVID19_X-ray_scan_detection\\COVID-19_Radiography_Database"
     covid_location = path + '\\COVID-19\\' + os.listdir(path + "\\COVID-19")[img_number]
     normal_location = path + '\\NORMAL\\' + os.listdir(path + "\\NORMAL")[img_number]
     vir_pneumonia_location = path + '\\Viral Pneumonia\\' + os.listdir(path + '\\Viral Pneumonia')[img_number]
@@ -33,14 +34,14 @@ def gen_visualisation(train):
 
 
 def data_preprocessing():
-    how_many = 350
+    how_many = 700
     size = 512
     categories = ['COVID-19', 'NORMAL']
     training_data = []
     X = []
     y = []
 
-    datadir = "C:\\Users\\micha\\OneDrive\\Documents\\Machine learning\\COVID19_prediction\\COVID-19_Radiography_Database"
+    datadir = "C:\\Users\\micha\\OneDrive\\Documents\\Machine learning\\COVID19_X-ray_scan_detection\\COVID-19_Radiography_Database"
     for category in categories:
         path = os.path.join(datadir, category)
         class_number = categories.index(category)
@@ -103,8 +104,8 @@ def network():
 
 
 def training(training_model, X_train, X_val, y_train, y_val):
-    batch_size = 16
-    epochs = 9
+    batch_size = 8
+    epochs = 10
     image_shape = (512, 512, 1)
 
     es = EarlyStopping(patience=5, monitor='val_loss')
@@ -114,8 +115,8 @@ def training(training_model, X_train, X_val, y_train, y_val):
     log_directory = 'logs\\fit\\' + timestamp
     board = TensorBoard(log_dir=log_directory, histogram_freq=1, write_graph=True, update_freq='epoch', profile_batch=2, embeddings_freq=1)
 
-    image_gen_train = ImageDataGenerator(rescale=1/255, rotation_range=0.05, width_shift_range=0.1, height_shift_range=0.1,
-                                         zoom_range=0.1, horizontal_flip=True, vertical_flip=False, fill_mode='nearest')
+    image_gen_train = ImageDataGenerator(rescale=1/255, rotation_range=5, width_shift_range=0.1, height_shift_range=0.1,
+                                         zoom_range=0.1, brightness_range=(0.95, 1.05), horizontal_flip=True, vertical_flip=False, fill_mode='constant')
     image_gen_val = ImageDataGenerator(rescale=1/255)
     train_set = image_gen_train.flow(X_train, y_train, batch_size=batch_size, shuffle=True)
     val_set = image_gen_val.flow(X_val, y_val, batch_size=batch_size, shuffle=False)
@@ -129,9 +130,12 @@ def training(training_model, X_train, X_val, y_train, y_val):
     metrics[['loss', 'val_loss']].plot()
     plt.show()
 
+    predictions = training_model.predict_generator(X_val)
+    print(classification_report(y_val, predictions.round()))
+
 
 if __name__ == "__main__":
     X = data_preprocessing()['X']
     y = data_preprocessing()['y']
-    X_train, X_val, y_train, y_val = train_test_split(X, y, random_state=333, test_size=0.25)
+    X_train, X_val, y_train, y_val = train_test_split(X, y, random_state=333, test_size=0.3)
     training(network(), X_train, X_val, y_train, y_val)
