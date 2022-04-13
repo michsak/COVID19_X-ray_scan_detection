@@ -21,7 +21,6 @@ Second attempt was made on the same network, but additionaly I used ImageDataGen
 ![](https://raw.githubusercontent.com/michsak/COVID19_X-ray_scan_detection/master/results/gen_merged.png?token=AN7LSJ3BYL6OGW3OOFSK6SS6UTPDY)
 
 As it is shown above the best way to improve accuracy is to get a lot more data. Network doesn't work well on imbalanced data and less than 300 basic photos of infected category. </br>
-(Project probably to be continued when more data is available).
 
 
 ## Technologies
